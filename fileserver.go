@@ -1,6 +1,7 @@
 package fileserver
 
 import (
+	"fmt"
 	"io"
 	"log"
 	"net/http"
@@ -8,24 +9,6 @@ import (
 	"path"
 )
 
-/*
-Features:
-  - create files -> touch
-  - update files
-  - read files -> cat
-  - read dir's -> ls
-  - delete files/dir
-
-GET
-  - path is dir -> ls
-  - path is file -> cat
-  - path is invalid -> 400
-
-PUT:
-  - path is dir -> error
-  - path is file -> replace
-  - path is  -> replace
-*/
 type FileServer struct {
 	root        string
 	readOnly    bool
@@ -73,8 +56,30 @@ func New(options ...Option) *FileServer {
 	return &fileserver
 }
 
+/*
+ */
+func parseGetRequest(r *http.Request) {
+}
+
+func parsePutRequest(r *http.Request) {
+	println("put lol")
+}
+
+func parseDeleteRequest(r *http.Request) {
+	println("delete lol")
+}
+
 func (*FileServer) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	log.Println("the request")
+	switch r.Method {
+	case http.MethodGet:
+		parseGetRequest(r)
+	case http.MethodPut:
+		parsePutRequest(r)
+	case http.MethodDelete:
+		parseDeleteRequest(r)
+	default:
+		http.Error(w, fmt.Sprintf("Unsuppoted method '%s'", r.Method), http.StatusBadRequest)
+	}
 }
 
 func FileSystemHandler(w http.ResponseWriter, r *http.Request) {

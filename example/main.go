@@ -1,7 +1,14 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	fileserver "github.com/mouhamedBourouba/go-file-service"
+)
 
 func main() {
-	http.Handle()
+	fs := fileserver.New()
+
+	http.Handle("/", fs)
+	http.ListenAndServe(":8000", nil)
 }
