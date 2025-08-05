@@ -21,7 +21,6 @@ type FileServer struct {
 	readOnly    bool
 	allowDelete bool
 	maxFileSize int64
-	allowedExts map[string]bool
 	logger      *log.Logger
 }
 
@@ -84,18 +83,6 @@ func WithAllowDelete(allow bool) Option {
 func WithMaxFileSize(size int64) Option {
 	return func(fs *FileServer) {
 		fs.maxFileSize = size
-	}
-}
-
-func WithAllowedExtensions(extensions []string) Option {
-	return func(fs *FileServer) {
-		fs.allowedExts = make(map[string]bool)
-		for _, ext := range extensions {
-			if !strings.HasPrefix(ext, ".") {
-				ext = "." + ext
-			}
-			fs.allowedExts[strings.ToLower(ext)] = true
-		}
 	}
 }
 
