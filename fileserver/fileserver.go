@@ -152,7 +152,6 @@ func (fs *FileServer) logRequest(r *http.Request, status int, message string) {
 // @Router /{path} [get]
 func (fs *FileServer) getRequest(w http.ResponseWriter, r *http.Request) {
 	requestedFile, err := fs.securePath(r.URL.Path)
-	fs.logger.Println(requestedFile)
 	if err != nil {
 		fs.writeError(w, r, "Invalid path", http.StatusBadRequest, err.Error())
 		return
