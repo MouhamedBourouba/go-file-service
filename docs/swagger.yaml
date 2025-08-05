@@ -1,0 +1,219 @@
+basePath: /
+definitions:
+  fileserver.DirectoryResponse:
+    properties:
+      count:
+        example: 5
+        type: integer
+      files:
+        items:
+          $ref: '#/definitions/fileserver.FileInfo'
+        type: array
+      path:
+        example: /folder
+        type: string
+      totalSize:
+        example: 10240
+        type: integer
+    type: object
+  fileserver.ErrorResponse:
+    properties:
+      error:
+        example: File not found
+        type: string
+      message:
+        example: The requested file does not exist
+        type: string
+      path:
+        example: /invalid/path
+        type: string
+      timestamp:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+    type: object
+  fileserver.FileInfo:
+    properties:
+      isDir:
+        example: false
+        type: boolean
+      mimeType:
+        example: text/plain
+        type: string
+      modTime:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+      name:
+        example: example.txt
+        type: string
+      path:
+        example: /folder/example.txt
+        type: string
+      size:
+        example: 1024
+        type: integer
+    type: object
+  fileserver.UploadResponse:
+    properties:
+      message:
+        example: File created successfully
+        type: string
+      path:
+        example: /folder/example.txt
+        type: string
+      size:
+        example: 1024
+        type: integer
+      timestamp:
+        example: "2024-01-01T12:00:00Z"
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: This is a sample file server API for web IDE
+  license:
+    name: MIT
+  title: File Server API
+  version: "1.0"
+paths:
+  /{path}:
+    get:
+      description: Get a file's content or list directory contents
+      parameters:
+      - description: File or directory path
+        in: path
+        name: path
+        required: true
+        type: string
+      - description: Accept header
+        enum:
+        - application/json
+        - text/html
+        in: header
+        name: Accept
+        type: string
+      produces:
+      - application/json
+      - application/octet-stream
+      - text/html
+      responses:
+        "200":
+          description: File content
+          schema:
+            type: file
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+      summary: Get file or directory
+      tags:
+      - files
+  /files/{path}:
+    delete:
+      description: Delete a file or empty directory
+      parameters:
+      - description: File or directory path
+        in: path
+        name: path
+        required: true
+        type: string
+      - description: Delete directory recursively
+        in: query
+        name: recursive
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Success message
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "404":
+          description: File not found
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+      summary: Delete file or directory
+      tags:
+      - files
+    put:
+      consumes:
+      - application/octet-stream
+      - text/plain
+      - multipart/form-data
+      description: Upload a new file or update existing file content
+      parameters:
+      - description: File path
+        in: path
+        name: path
+        required: true
+        type: string
+      - description: File content
+        in: body
+        name: file
+        required: true
+        schema:
+          type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: File updated
+          schema:
+            $ref: '#/definitions/fileserver.UploadResponse'
+        "201":
+          description: File created
+          schema:
+            $ref: '#/definitions/fileserver.UploadResponse'
+        "400":
+          description: Bad request
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "413":
+          description: File too large
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+        "500":
+          description: Internal server error
+          schema:
+            $ref: '#/definitions/fileserver.ErrorResponse'
+      summary: Upload or create file
+      tags:
+      - files
+  /health:
+    get:
+      description: Check if the server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Health check
+      tags:
+      - health
+swagger: "2.0"
